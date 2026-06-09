@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #1e2d4a;
+    --blue:    #2563eb;
+    --blue-lt: #eff4ff;
+    --sky:     #38bdf8;
+    --slate:   #64748b;
+    --border:  #e2e8f0;
+    --bg:      #f8fafc;
+    --white:   #ffffff;
+    --text:    #0f172a;
+    --muted:   #94a3b8;
+    --up:      #16a34a;
+    --up-bg:   #f0fdf4;
+    --down:    #dc2626;
+    --down-bg: #fef2f2;
+    --unk:     #d97706;
+    --unk-bg:  #fffbeb;
+    --radius:  8px;
+    --shadow:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,.1), 0 4px 10px rgba(0,0,0,.06);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── TOP NAV ── */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .brand {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--navy);
+    padding: 18px 0;
+    margin-right: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .brand-dot {
+    width: 8px; height: 8px;
+    background: var(--blue);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .nav-tab {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--slate);
+    padding: 20px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 32px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeUp .2s ease; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -.4px;
+  }
+
+  .page-sub {
+    font-size: 13px;
+    color: var(--slate);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  /* ── STAT CARDS ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .stat {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-num {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 12px; color: var(--slate); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+  }
+
+  .search-box svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  input[type="text"], select, textarea, input[type="url"] {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .search-box input { padding-left: 34px; }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
+
+  select { width: auto; min-width: 140px; cursor: pointer; }
+  textarea { resize: vertical; min-height: 72px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+
+  .btn-ghost { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+
+  .btn-danger { background: var(--white); color: var(--down); border: 1px solid #fecaca; }
+  .btn-danger:hover { background: var(--down-bg); }
+
+  .btn-icon {
+    padding: 7px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--slate);
+    border-radius: var(--radius);
+  }
+  .btn-icon:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+  .btn-icon svg { display:block; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead { background: #f1f5f9; }
+
+  th {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 14px 18px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .1s; cursor: pointer; }
+  tbody tr:hover { background: #f8fafc; }
+
+  .td-name { font-weight: 600; font-size: 13px; color: var(--navy); }
+  .td-sub  { font-size: 12px; color: var(--slate); margin-top: 2px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-up   { background: var(--up-bg);   color: var(--up);   }
+  .badge-down { background: var(--down-bg); color: var(--down); }
+  .badge-unk  { background: var(--unk-bg);  color: var(--unk);  }
+  .badge-dot  { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .cat-tag {
+    background: var(--blue-lt);
+    color: var(--blue);
+    padding: 2px 9px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .type-tag {
+    background: #f0fdf4;
+    color: #166534;
+    padding: 2px 9px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .ds-chip {
+    background: #f1f5f9;
+    color: var(--slate);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  .row-actions { display: flex; gap: 6px; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty svg { margin-bottom: 12px; color: #cbd5e1; }
+  .empty h3 { font-size: 15px; font-weight: 600; color: var(--slate); margin-bottom: 6px; }
+  .empty p  { font-size: 13px; }
+
+  /* ── MODAL ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,.45);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+  }
+  .overlay.open { display: flex; animation: fadeIn .15s ease; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  .modal {
+    background: var(--white);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp .2s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(16px) scale(.97); } to { opacity:1; transform:none; } }
+
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px 0;
+  }
+  .modal-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; color: var(--navy); }
+  .modal-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 4px; border-radius: 6px;
+    transition: color .15s, background .15s; display:flex;
+  }
+  .modal-close:hover { color: var(--text); background: var(--bg); }
+
+  .modal-body { padding: 20px 24px; }
+  .modal-foot { padding: 0 24px 22px; display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 16px; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slate);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  .err-msg { color: var(--down); font-size: 12px; margin-top: 4px; display: none; }
+  .err-msg.show { display: block; }
+  input.err, select.err, textarea.err { border-color: var(--down); }
+
+  /* ── MULTI SELECT ── */
+  .multi-list {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    max-height: 150px;
+    overflow-y: auto;
+    background: var(--white);
+  }
+  .multi-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background .1s;
+  }
+  .multi-item:hover { background: var(--bg); }
+  .multi-item input[type=checkbox] { accent-color: var(--blue); width:14px; height:14px; cursor:pointer; }
+
+  /* ── DETAIL VIEW ── */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .detail-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing:.5px; color: var(--muted); margin-bottom: 3px; }
+  .detail-val { font-size: 13px; color: var(--text); }
+  .detail-val a { color: var(--blue); text-decoration: none; font-size: 12px; word-break: break-all; }
+  .detail-val a:hover { text-decoration: underline; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* ── CONFIRM ── */
+  .confirm-body { font-size: 14px; color: var(--slate); line-height: 1.6; }
+  .confirm-body strong { color: var(--text); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--navy); color: #fff;
+    border-radius: var(--radius); padding: 12px 18px;
+    font-size: 13px; font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(60px); opacity: 0;
+    transition: all .25s cubic-bezier(.34,1.56,.64,1);
+    max-width: 300px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.err  { background: var(--down); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><span class="brand-dot"></span> Dashboard Registry</div>
+  <div class="nav-tab active" id="tab-dashboards" onclick="switchTab('dashboards')">Dashboards</div>
+  <div class="nav-tab" id="tab-datasources" onclick="switchTab('datasources')">Data Sources</div>
+</nav>
+
+<main>
+
+  <!-- DASHBOARDS -->
+  <div class="screen active" id="screen-dashboards">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dashboards</div>
+        <div class="page-sub">All company dashboards in one place</div>
+      </div>
+      <button class="btn btn-primary" onclick="openDashForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Dashboard
+      </button>
+    </div>
+    <div class="stats" id="dash-stats"></div>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="dash-search" placeholder="Search dashboards..." oninput="renderDashboards()" />
+      </div>
+      <select id="dash-cat" onchange="renderDashboards()"><option value="">All categories</option></select>
+      <select id="dash-status" onchange="renderDashboards()">
+        <option value="">All statuses</option>
+        <option>Up</option><option>Down</option><option>Unknown</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Name</th><th>Category</th><th>Owner</th><th>Status</th><th>Data Sources</th><th></th>
+        </tr></thead>
+        <tbody id="dash-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DATA SOURCES -->
+  <div class="screen" id="screen-datasources">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Data Sources</div>
+        <div class="page-sub">Databases, files, and APIs used by dashboards</div>
+      </div>
+      <button class="btn btn-primary" onclick="openDSForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Data Source
+      </button>
+    </div>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="ds-search" placeholder="Search data sources..." oninput="renderDS()" />
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Name</th><th>Type</th><th>Description</th><th>Used by</th><th></th>
+        </tr></thead>
+        <tbody id="ds-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- DASHBOARD FORM MODAL -->
+<div class="overlay" id="m-dash-form">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="dash-form-title">New Dashboard</div>
+      <button class="modal-close" onclick="closeModal('m-dash-form')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name *</label>
+        <input type="text" id="df-name" placeholder="e.g. Monthly Sales Overview" />
+        <div class="err-msg" id="df-name-err">Name is required and must be unique.</div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="df-desc" placeholder="What does this dashboard show?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>URL *</label>
+        <input type="url" id="df-url" placeholder="https://bi.company.com/..." />
+        <div class="err-msg" id="df-url-err">A valid URL starting with http:// or https:// is required.</div>
+      </div>
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="df-cat">
+          <option value="">Select a category...</option>
+          <option>Finance</option><option>HR</option><option>Operations</option>
+          <option>Sales</option><option>Marketing</option><option>IT</option><option>Executive</option>
+        </select>
+        <div class="err-msg" id="df-cat-err">Please select a category.</div>
+      </div>
+      <div class="form-group">
+        <label>Owner *</label>
+        <input type="text" id="df-owner" placeholder="e.g. Finance Team" />
+        <div class="err-msg" id="df-owner-err">Owner name is required.</div>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="df-status">
+          <option value="Unknown">Unknown</option>
+          <option value="Up">Up</option>
+          <option value="Down">Down</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Link Data Sources</label>
+        <div class="multi-list" id="df-sources"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('m-dash-form')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDashboard()">Save Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD DETAIL MODAL -->
+<div class="overlay" id="m-dash-detail">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="dd-title">Dashboard</div>
+      <button class="modal-close" onclick="closeModal('m-dash-detail')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="dd-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" onclick="confirmDelDash()">Delete</button>
+      <button class="btn btn-ghost" onclick="editCurDash()">Edit</button>
+      <button class="btn btn-primary" onclick="openDashURL()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Open
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DATA SOURCE FORM MODAL -->
+<div class="overlay" id="m-ds-form">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="ds-form-title">New Data Source</div>
+      <button class="modal-close" onclick="closeModal('m-ds-form')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name *</label>
+        <input type="text" id="dsf-name" placeholder="e.g. Sales Database" />
+        <div class="err-msg" id="dsf-name-err">Name is required and must be unique.</div>
+      </div>
+      <div class="form-group">
+        <label>Type *</label>
+        <select id="dsf-type">
+          <option value="">Select type...</option>
+          <option>Database</option><option>File</option><option>API</option>
+        </select>
+        <div class="err-msg" id="dsf-type-err">Please select a type.</div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="dsf-desc" placeholder="What data does this source contain?"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('m-ds-form')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDS()">Save Data Source</button>
+    </div>
+  </div>
+</div>
+
+<!-- DATA SOURCE DETAIL MODAL -->
+<div class="overlay" id="m-ds-detail">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="dsd-title">Data Source</div>
+      <button class="modal-close" onclick="closeModal('m-ds-detail')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="dsd-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" onclick="confirmDelDS()">Delete</button>
+      <button class="btn btn-ghost" onclick="editCurDS()">Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="m-confirm">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <div class="modal-title" style="color:var(--down)">Confirm Delete</div>
+      <button class="modal-close" onclick="closeModal('m-confirm')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body"><p class="confirm-body" id="confirm-text"></p></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('m-confirm')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// in-memory data store - replace these with fetch() calls to the Flask API
+let nextDashId = 100;
+let nextDSId   = 10;
+
+let dataSources = [
+  { id:1, name:"Sales PostgreSQL DB",  type:"Database", description:"Primary sales transactional database, updated hourly." },
+  { id:2, name:"Monthly HR Export",    type:"File",     description:"CSV export from SAP HR system, refreshed monthly." },
+  { id:3, name:"Finance ERP API",      type:"API",      description:"REST API from the SAP Finance ERP system." },
+  { id:4, name:"Operations Log DB",    type:"Database", description:"Operational events and SLA tracking database." },
+  { id:5, name:"Marketing Analytics",  type:"API",      description:"Google Analytics and social media stats aggregator." },
+];
+
+let dashboards = [
+  { id:1, name:"Monthly Sales Overview", category:"Sales",     description:"Shows revenue, deals closed, and pipeline health by region.", url:"https://bi.company.com/sales/monthly",  owner_name:"Sales Team",      status:"Up",      data_source_ids:[1,3], created_at:"2025-01-10", updated_at:"2025-05-01" },
+  { id:2, name:"Staff Headcount Report", category:"HR",        description:"Monthly headcount, attrition rate, and new hires by department.",  url:"https://bi.company.com/hr/headcount",   owner_name:"HR Department",   status:"Up",      data_source_ids:[2],   created_at:"2025-02-05", updated_at:"2025-04-20" },
+  { id:3, name:"Finance P&L Dashboard",  category:"Finance",   description:"Profit and loss, expense breakdown, and budget vs actuals.",        url:"https://bi.company.com/finance/pnl",    owner_name:"CFO Office",      status:"Up",      data_source_ids:[3],   created_at:"2025-01-20", updated_at:"2025-05-10" },
+  { id:4, name:"Operations SLA Tracker", category:"Operations",description:"SLA compliance, ticket volumes, and resolution times.",             url:"https://bi.company.com/ops/sla",        owner_name:"IT Operations",   status:"Down",    data_source_ids:[4],   created_at:"2025-03-01", updated_at:"2025-05-18" },
+  { id:5, name:"Executive Summary",      category:"Executive", description:"High-level KPIs across all departments for C-level briefings.",     url:"https://bi.company.com/exec/summary",   owner_name:"Strategy Office", status:"Up",      data_source_ids:[1,2,3,4], created_at:"2025-01-01", updated_at:"2025-05-20" },
+];
+
+let curDashId = null;
+let curDSId   = null;
+let editDashId = null;
+let editDSId   = null;
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('screen-' + tab).classList.add('active');
+  tab === 'dashboards' ? renderDashboards() : renderDS();
+}
+
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (type === 'err' ? ' err' : '');
+  setTimeout(() => t.className = '', 2600);
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function statusBadge(s) {
+  const cls = s === 'Up' ? 'badge-up' : s === 'Down' ? 'badge-down' : 'badge-unk';
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${s}</span>`;
+}
+
+function getDSNames(ids) {
+  return ids.map(id => dataSources.find(d => d.id === id)).filter(Boolean);
+}
+
+function renderDashboards() {
+  const search = document.getElementById('dash-search').value.toLowerCase();
+  const cat    = document.getElementById('dash-cat').value;
+  const status = document.getElementById('dash-status').value;
+
+  const cats = [...new Set(dashboards.map(d => d.category))].sort();
+  const catEl = document.getElementById('dash-cat');
+  const saved = catEl.value;
+  catEl.innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option ${c===saved?'selected':''}>${c}</option>`).join('');
+
+  const up   = dashboards.filter(d => d.status === 'Up').length;
+  const down = dashboards.filter(d => d.status === 'Down').length;
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat"><div class="stat-num" style="color:var(--navy)">${dashboards.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--up)">${up}</div><div class="stat-label">Online</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--down)">${down}</div><div class="stat-label">Offline</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--blue)">${dataSources.length}</div><div class="stat-label">Data Sources</div></div>
+  `;
+
+  const filtered = dashboards.filter(d =>
+    d.name.toLowerCase().includes(search) &&
+    (!cat    || d.category === cat) &&
+    (!status || d.status   === status)
+  );
+
+  const body = document.getElementById('dash-body');
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <h3>No dashboards found</h3><p>Try changing your search or filters</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map(d => {
+    const ds = getDSNames(d.data_source_ids);
+    const chips = ds.length ? ds.map(s => `<span class="ds-chip">${s.name}</span>`).join('') : '<span style="color:var(--muted);font-size:12px">None</span>';
+    return `<tr onclick="viewDash(${d.id})">
+      <td><div class="td-name">${d.name}</div><div class="td-sub">${d.description || ''}</div></td>
+      <td><span class="cat-tag">${d.category}</span></td>
+      <td style="color:var(--slate)">${d.owner_name}</td>
+      <td>${statusBadge(d.status)}</td>
+      <td><div class="chips">${chips}</div></td>
+      <td onclick="event.stopPropagation()">
+        <div class="row-actions">
+          <button class="btn btn-icon" title="Edit" onclick="openDashForm(${d.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+          </button>
+          <button class="btn btn-icon" title="Open" onclick="window.open('${d.url}','_blank')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openDashForm(id) {
+  editDashId = id || null;
+  clearDashForm();
+  document.getElementById('dash-form-title').textContent = id ? 'Edit Dashboard' : 'New Dashboard';
+
+  const d      = id ? dashboards.find(x => x.id === id) : null;
+  const linked = d ? d.data_source_ids : [];
+
+  document.getElementById('df-sources').innerHTML = dataSources.length
+    ? dataSources.map(ds => `<label class="multi-item">
+        <input type="checkbox" value="${ds.id}" ${linked.includes(ds.id)?'checked':''} />
+        ${ds.name} &nbsp;<span class="type-tag">${ds.type}</span>
+      </label>`).join('')
+    : '<div style="padding:12px;color:var(--muted);font-size:13px">No data sources yet.</div>';
+
+  if (d) {
+    document.getElementById('df-name').value   = d.name;
+    document.getElementById('df-desc').value   = d.description || '';
+    document.getElementById('df-url').value    = d.url;
+    document.getElementById('df-cat').value    = d.category;
+    document.getElementById('df-owner').value  = d.owner_name;
+    document.getElementById('df-status').value = d.status;
+  }
+
+  closeModal('m-dash-detail');
+  openModal('m-dash-form');
+}
+
+function clearDashForm() {
+  ['df-name','df-desc','df-url','df-owner'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('df-cat').value    = '';
+  document.getElementById('df-status').value = 'Unknown';
+  ['df-name-err','df-url-err','df-cat-err','df-owner-err'].forEach(id => document.getElementById(id).classList.remove('show'));
+  ['df-name','df-url','df-cat','df-owner'].forEach(id => document.getElementById(id).classList.remove('err'));
+}
+
+function saveDashboard() {
+  const name   = document.getElementById('df-name').value.trim();
+  const url    = document.getElementById('df-url').value.trim();
+  const cat    = document.getElementById('df-cat').value;
+  const owner  = document.getElementById('df-owner').value.trim();
+  const desc   = document.getElementById('df-desc').value.trim();
+  const status = document.getElementById('df-status').value;
+  const dsIds  = [...document.querySelectorAll('#df-sources input:checked')].map(c => parseInt(c.value));
+
+  let ok = true;
+  const nameExists = dashboards.some(d => d.name.toLowerCase() === name.toLowerCase() && d.id !== editDashId);
+  if (!name || nameExists) {
+    document.getElementById('df-name-err').textContent = !name ? 'Name is required.' : 'This name is already taken.';
+    document.getElementById('df-name-err').classList.add('show');
+    document.getElementById('df-name').classList.add('err');
+    ok = false;
+  } else {
+    document.getElementById('df-name-err').classList.remove('show');
+    document.getElementById('df-name').classList.remove('err');
+  }
+
+  const urlOk = url && (url.startsWith('http://') || url.startsWith('https://'));
+  if (!urlOk) {
+    document.getElementById('df-url-err').classList.add('show');
+    document.getElementById('df-url').classList.add('err');
+    ok = false;
+  } else {
+    document.getElementById('df-url-err').classList.remove('show');
+    document.getElementById('df-url').classList.remove('err');
+  }
+
+  if (!cat) {
+    document.getElementById('df-cat-err').classList.add('show');
+    document.getElementById('df-cat').classList.add('err');
+    ok = false;
+  } else {
+    document.getElementById('df-cat-err').classList.remove('show');
+    document.getElementById('df-cat').classList.remove('err');
+  }
+
+  if (!owner) {
+    document.getElementById('df-owner-err').classList.add('show');
+    document.getElementById('df-owner').classList.add('err');
+    ok = false;
+  } else {
+    document.getElementById('df-owner-err').classList.remove('show');
+    document.getElementById('df-owner').classList.remove('err');
+  }
+
+  if (!ok) return;
+
+  const now = new Date().toISOString().split('T')[0];
+  if (editDashId) {
+    const d = dashboards.find(x => x.id === editDashId);
+    Object.assign(d, { name, description:desc, url, category:cat, owner_name:owner, status, data_source_ids:dsIds, updated_at:now });
+    toast('Dashboard updated');
+  } else {
+    dashboards.push({ id:++nextDashId, name, description:desc, url, category:cat, owner_name:owner, status, data_source_ids:dsIds, created_at:now, updated_at:now });
+    toast('Dashboard created');
+  }
+  closeModal('m-dash-form');
+  renderDashboards();
+}
+
+function viewDash(id) {
+  curDashId = id;
+  const d   = dashboards.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('dd-title').textContent = d.name;
+  const dsHtml = getDSNames(d.data_source_ids).length
+    ? getDSNames(d.data_source_ids).map(s => `<span class="ds-chip">${s.name} &middot; ${s.type}</span>`).join('')
+    : '<span style="color:var(--muted);font-size:13px">No data sources linked</span>';
+  document.getElementById('dd-body').innerHTML = `
+    <div style="margin-bottom:14px">
+      <div class="detail-lbl">Description</div>
+      <div class="detail-val">${d.description || '<em style="color:var(--muted)">No description</em>'}</div>
+    </div>
+    <div class="detail-grid">
+      <div><div class="detail-lbl">Category</div><div class="detail-val"><span class="cat-tag">${d.category}</span></div></div>
+      <div><div class="detail-lbl">Status</div><div class="detail-val">${statusBadge(d.status)}</div></div>
+      <div><div class="detail-lbl">Owner</div><div class="detail-val">${d.owner_name}</div></div>
+      <div><div class="detail-lbl">Last updated</div><div class="detail-val" style="color:var(--slate);font-size:12px">${d.updated_at}</div></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="detail-lbl">URL</div>
+      <div class="detail-val"><a href="${d.url}" target="_blank" rel="noopener">${d.url}</a></div>
+    </div>
+    <hr class="divider">
+    <div class="detail-lbl">Data Sources</div>
+    <div class="chips" style="margin-top:8px">${dsHtml}</div>
+  `;
+  openModal('m-dash-detail');
+}
+
+function openDashURL() {
+  const d = dashboards.find(x => x.id === curDashId);
+  if (d) window.open(d.url, '_blank');
+}
+
+function editCurDash() { closeModal('m-dash-detail'); openDashForm(curDashId); }
+
+function confirmDelDash() {
+  const d = dashboards.find(x => x.id === curDashId);
+  document.getElementById('confirm-text').innerHTML = `Are you sure you want to delete <strong>"${d.name}"</strong>? This cannot be undone.`;
+  document.getElementById('confirm-btn').onclick = () => {
+    dashboards = dashboards.filter(x => x.id !== curDashId);
+    closeModal('m-confirm');
+    closeModal('m-dash-detail');
+    renderDashboards();
+    toast('Dashboard deleted');
+  };
+  closeModal('m-dash-detail');
+  openModal('m-confirm');
+}
+
+function renderDS() {
+  const search   = document.getElementById('ds-search').value.toLowerCase();
+  const filtered = dataSources.filter(d => d.name.toLowerCase().includes(search));
+  const body     = document.getElementById('ds-body');
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      <h3>No data sources found</h3><p>Try a different search term</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map(ds => {
+    const usedBy = dashboards.filter(d => d.data_source_ids.includes(ds.id));
+    const chips  = usedBy.length ? usedBy.map(d => `<span class="ds-chip">${d.name}</span>`).join('') : '<span style="color:var(--muted);font-size:12px">Not linked</span>';
+    return `<tr onclick="viewDS(${ds.id})">
+      <td style="font-weight:600;color:var(--navy)">${ds.name}</td>
+      <td><span class="type-tag">${ds.type}</span></td>
+      <td style="color:var(--slate);font-size:12px">${ds.description || ''}</td>
+      <td><div class="chips">${chips}</div></td>
+      <td onclick="event.stopPropagation()">
+        <div class="row-actions">
+          <button class="btn btn-icon" title="Edit" onclick="openDSForm(${ds.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openDSForm(id) {
+  editDSId = id || null;
+  clearDSForm();
+  document.getElementById('ds-form-title').textContent = id ? 'Edit Data Source' : 'New Data Source';
+  if (id) {
+    const ds = dataSources.find(x => x.id === id);
+    document.getElementById('dsf-name').value = ds.name;
+    document.getElementById('dsf-type').value = ds.type;
+    document.getElementById('dsf-desc').value = ds.description || '';
+  }
+  closeModal('m-ds-detail');
+  openModal('m-ds-form');
+}
+
+function clearDSForm() {
+  document.getElementById('dsf-name').value = '';
+  document.getElementById('dsf-type').value = '';
+  document.getElementById('dsf-desc').value = '';
+  ['dsf-name-err','dsf-type-err'].forEach(id => document.getElementById(id).classList.remove('show'));
+  ['dsf-name','dsf-type'].forEach(id => document.getElementById(id).classList.remove('err'));
+}
+
+function saveDS() {
+  const name = document.getElementById('dsf-name').value.trim();
+  const type = document.getElementById('dsf-type').value;
+  const desc = document.getElementById('dsf-desc').value.trim();
+  let ok = true;
+
+  const nameExists = dataSources.some(d => d.name.toLowerCase() === name.toLowerCase() && d.id !== editDSId);
+  if (!name || nameExists) {
+    document.getElementById('dsf-name-err').textContent = !name ? 'Name is required.' : 'This name is already taken.';
+    document.getElementById('dsf-name-err').classList.add('show');
+    document.getElementById('dsf-name').classList.add('err');
+    ok = false;
+  } else {
+    document.getElementById('dsf-name-err').classList.remove('show');
+    document.getElementById('dsf-name').classList.remove('err');
+  }
+
+  if (!type) {
+    document.getElementById('dsf-type-err').classList.add('show');
+    document.getElementById('dsf-type').classList.add('err');
+    ok = false;
+  } else {
+    document.getElementById('dsf-type-err').classList.remove('show');
+    document.getElementById('dsf-type').classList.remove('err');
+  }
+
+  if (!ok) return;
+
+  if (editDSId) {
+    const ds = dataSources.find(x => x.id === editDSId);
+    Object.assign(ds, { name, type, description:desc });
+    toast('Data source updated');
+  } else {
+    dataSources.push({ id:++nextDSId, name, type, description:desc });
+    toast('Data source created');
+  }
+  closeModal('m-ds-form');
+  renderDS();
+}
+
+function viewDS(id) {
+  curDSId   = id;
+  const ds  = dataSources.find(x => x.id === id);
+  if (!ds) return;
+  document.getElementById('dsd-title').textContent = ds.name;
+  const usedBy = dashboards.filter(d => d.data_source_ids.includes(ds.id));
+  const chips  = usedBy.length
+    ? usedBy.map(d => `<span class="ds-chip">${d.name} &nbsp;${statusBadge(d.status)}</span>`).join('')
+    : '<span style="color:var(--muted);font-size:13px">Not linked to any dashboard</span>';
+  document.getElementById('dsd-body').innerHTML = `
+    <div class="detail-grid">
+      <div><div class="detail-lbl">Type</div><div class="detail-val"><span class="type-tag">${ds.type}</span></div></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="detail-lbl">Description</div>
+      <div class="detail-val">${ds.description || '<em style="color:var(--muted)">No description</em>'}</div>
+    </div>
+    <hr class="divider">
+    <div class="detail-lbl">Used by (${usedBy.length})</div>
+    <div class="chips" style="margin-top:8px">${chips}</div>
+  `;
+  openModal('m-ds-detail');
+}
+
+function editCurDS() { closeModal('m-ds-detail'); openDSForm(curDSId); }
+
+function confirmDelDS() {
+  const ds     = dataSources.find(x => x.id === curDSId);
+  const linked = dashboards.filter(d => d.data_source_ids.includes(curDSId));
+  if (linked.length) {
+    document.getElementById('confirm-text').innerHTML = `<strong>"${ds.name}"</strong> is still linked to ${linked.length} dashboard(s). Remove those links first before deleting this data source.`;
+    document.getElementById('confirm-btn').textContent = 'OK';
+    document.getElementById('confirm-btn').onclick = () => closeModal('m-confirm');
+  } else {
+    document.getElementById('confirm-text').innerHTML = `Are you sure you want to delete <strong>"${ds.name}"</strong>? This cannot be undone.`;
+    document.getElementById('confirm-btn').textContent = 'Delete';
+    document.getElementById('confirm-btn').onclick = () => {
+      dataSources = dataSources.filter(x => x.id !== curDSId);
+      closeModal('m-confirm');
+      closeModal('m-ds-detail');
+      renderDS();
+      toast('Data source deleted');
+    };
+  }
+  closeModal('m-ds-detail');
+  openModal('m-confirm');
+}
+
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+
+renderDashboards();
+</script>
+</body>
+</html>
